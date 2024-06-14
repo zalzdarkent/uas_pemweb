@@ -1,6 +1,4 @@
-<?php
-include "tampilkan_data.php";
-?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -43,7 +41,7 @@ include "tampilkan_data.php";
                                 <div class="control-group">
                                     <label class="control-label" for="fileInput">Unggah File</label>
                                     <div class="controls">
-                                        <input type="file" class="input-file" id="file" name="file" accept="image/*,application/pdf" onchange="previewFile()" required>
+                                        <input type="file" class="input-file" id="file" name="file" accept="image/*,application/pdf" onchange="previewFile()">
                                     </div>
                                 </div>
                                 <div class="control-group">
@@ -71,10 +69,14 @@ include "tampilkan_data.php";
                 </div>
                 <div class="block-content collapse in">
                     <div class="span12">
-                        <form action="export_excel.php" method="post">
+                        <form action="export_excel.php" method="post" class="float-right">
                             <button type="submit" class="btn btn-success">Export to Excel</button>
                         </form>
-                        <input type="text" id="search" placeholder="Cari data mahasiswa" onkeyup="searchTable()">
+                        <form action="" method="get">
+                            <input type="text" name="cari" id="cari" placeholder="Cari data mahasiswa" value="<?php if(isset($_GET['cari'])){ echo $_GET['cari'];}?>">
+                            <button type="submit">Cari</button>
+                        </form>
+                        <!-- <input class="float-right mr-2" type="text" id="search" placeholder="Cari data mahasiswa" onkeyup="searchTable()"> -->
                         <table class="table" id="data-table">
                             <thead>
                                 <tr>
@@ -87,6 +89,24 @@ include "tampilkan_data.php";
                             </thead>
                             <tbody>
                                 <?php
+                                include('koneksi.php');
+                                if (isset($_GET['cari'])) {
+                                    $search = $_GET['cari'];
+                                    if (!is_numeric($search)) {
+                                        echo "<script>alert('NPM harus berupa angka'); window.location='index.php';</script>";
+                                    } elseif (strlen($search) < 13) {
+                                        echo "<script>alert('NPM kurang dari 13 digit'); window.location='index.php';</script>";
+                                    } elseif (strlen($search) > 13) {
+                                        echo "<script>alert('Digit NPM lebih dari 13'); window.location='index.php';</script>";
+                                    } else {
+                                        $query = "SELECT * FROM mhs WHERE npm LIKE '%" . $search . "%'";   
+                                    } 
+                                } else {
+                                    $query = "SELECT * FROM mhs";
+                                }
+
+                                $process = mysqli_query($koneksi, $query)
+                                    or die(mysqli_error($koneksi));
                                 while ($data = mysqli_fetch_assoc($process)) {
                                 ?>
                                     <tr>
@@ -101,7 +121,7 @@ include "tampilkan_data.php";
                                             <?php endif; ?>
                                         </td>
                                         <td><a href="edit.php?id=<?php echo $data['id']; ?>">Edit</a> |
-                                            <a href="hapus_data.php?id=<?php echo $data['id']; ?>">Hapus</a>
+                                            <a href="#" onclick="confirmDestroy(<?php echo $data['id']; ?>)">Hapus</a>
                                         </td>
                                     </tr>
                                 <?php
@@ -157,6 +177,12 @@ include "tampilkan_data.php";
             const preview = document.getElementById('filePreview');
             preview.src = '#';
             preview.style.display = 'none';
+        }
+
+        function confirmDestroy(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                window.location.href = 'hapus_data.php?id=' + id;
+            }
         }
     </script>
 </body>

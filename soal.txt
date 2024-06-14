@@ -1,0 +1,4 @@
+Silahkan buat filtering data mahasiswa berdasarkan NPM dengan ketentuan:
+a. data yang diinput hanya boleh angka, jika bukan ketika klik tombol cari muncul popup "npm harus angka" (done.)
+b. digit npm harus 13 angka, jika kurang dari 13 muncul popup "npm kurang dari 13"
+c. ketika digit npm lebihi dari 13, muncul popup "digit npm lebih dari 13 angka"
